@@ -26,7 +26,7 @@ paths:
                       example: 1
                     name:
                       type: string
-                      example: 'Bitcoin'
+                      example: 'Python'
         '404': 
           description: Теги не найдены
           content:

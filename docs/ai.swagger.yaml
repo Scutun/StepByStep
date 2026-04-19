@@ -1,0 +1,425 @@
+openapi: 3.0.0
+info:
+  title: AI Assistant API
+  version: 1.0.0
+  description: >
+    API для взаимодействия с ИИ-ассистентом образовательной платформы StepByStep.
+    Используется модель Llama 3.3 70B через Groq API (бесплатный тариф).
+
+paths:
+  /v1/ai/chat:
+    post:
+      summary: Отправить сообщение ИИ-ассистенту
+      description: >
+        Отправляет текстовое сообщение ИИ-ассистенту и получает ответ.
+        Пользователь должен быть авторизован.
+
+        **Логика обработки запроса:**
+        - Сервер проверяет права доступа (JWT-токен)
+        - Валидирует входные данные (длина, наличие текста)
+        - Проверяет лимит запросов (не более 10 в минуту)
+        - Если `sessionId` не передан — создаётся новая сессия
+        - ИИ-ассистент получает контекст (каталог курсов, база FAQ, история диалога)
+        - При запросе на подбор курса — анализирует уровень пользователя и предлагает подходящие курсы
+        - При вопросе о платформе — извлекает ответ из базы FAQ
+        - Сообщения сохраняются в истории сессии
+      tags:
+        - AI Assistant
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Токен авторизации в формате `Bearer <token>`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  minLength: 2
+                  maxLength: 2000
+                  description: Текст сообщения пользователя
+                  example: Я новичок, хочу научиться программировать — с чего начать?
+                sessionId:
+                  type: integer
+                  nullable: true
+                  description: >
+                    ID существующей сессии. Если не передан — создаётся новая сессия.
+                    Используйте для продолжения диалога.
+                  example: 5
+      responses:
+        '200':
+          description: Успешный ответ ИИ-ассистента
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: integer
+                    description: ID сессии (новой или существующей)
+                    example: 5
+                  message:
+                    type: string
+                    description: Ответ ИИ-ассистента
+                    example: >
+                      Отлично, что решили начать! Чтобы подобрать подходящий курс,
+                      расскажите: что вы хотите уметь в итоге? Например — создавать сайты,
+                      мобильные приложения, автоматизировать задачи или сменить профессию на разработчика?
+        '400':
+          description: Ошибка валидации входных данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiError'
+              examples:
+                empty_message:
+                  summary: Пустое сообщение
+                  value:
+                    status: 400
+                    code: AI_001
+                    message: Сообщение не может быть пустым
+                too_long:
+                  summary: Сообщение слишком длинное
+                  value:
+                    status: 400
+                    code: AI_002
+                    message: Сообщение не должно превышать 2000 символов
+        '403':
+          description: Недействительный токен авторизации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthError'
+        '404':
+          description: Сессия не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiError'
+              example:
+                status: 404
+                code: AI_004
+                message: Сессия не найдена
+        '429':
+          description: Превышен лимит запросов (10 сообщений в минуту)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiError'
+              example:
+                status: 429
+                code: AI_003
+                message: Превышен лимит запросов. Попробуйте через минуту.
+        '503':
+          description: Сервис ИИ временно недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiError'
+              example:
+                status: 503
+                code: AI_005
+                message: Сервис ИИ временно недоступен
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+
+  /v1/ai/sessions:
+    get:
+      summary: Получить список сессий пользователя
+      description: >
+        Возвращает список всех сессий диалога текущего пользователя с ИИ-ассистентом,
+        отсортированных по дате последнего обновления (сначала новые).
+        Поддерживает пагинацию.
+        Требуется авторизация.
+      tags:
+        - AI Assistant
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Токен авторизации в формате `Bearer <token>`
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Количество возвращаемых сессий
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Смещение для пагинации
+      responses:
+        '200':
+          description: Список сессий пользователя
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Общее количество сессий пользователя
+                    example: 3
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Session'
+        '403':
+          description: Недействительный токен авторизации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthError'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+
+  /v1/ai/sessions/{id}:
+    get:
+      summary: Получить историю сообщений сессии
+      description: >
+        Возвращает полную историю сообщений указанной сессии диалога.
+        Сессия должна принадлежать текущему авторизованному пользователю.
+        Сообщения отсортированы по времени создания (сначала старые).
+      tags:
+        - AI Assistant
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Токен авторизации в формате `Bearer <token>`
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID сессии
+          example: 5
+      responses:
+        '200':
+          description: История сообщений сессии
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: integer
+                    description: ID сессии
+                    example: 5
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+        '403':
+          description: Недействительный токен или попытка доступа к чужой сессии
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiError'
+              examples:
+                invalid_token:
+                  summary: Недействительный токен
+                  value:
+                    status: 40102
+                    message: Недействительный токен
+                forbidden_session:
+                  summary: Чужая сессия
+                  value:
+                    status: 403
+                    code: AI_006
+                    message: Доступ запрещён
+        '404':
+          description: Сессия не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiError'
+              example:
+                status: 404
+                code: AI_004
+                message: Сессия не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+
+    delete:
+      summary: Удалить сессию
+      description: >
+        Удаляет сессию и всю историю её сообщений.
+        Сессия должна принадлежать текущему авторизованному пользователю.
+      tags:
+        - AI Assistant
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Токен авторизации в формате `Bearer <token>`
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID сессии
+          example: 5
+      responses:
+        '200':
+          description: Сессия успешно удалена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Сессия удалена
+        '403':
+          description: Недействительный токен или попытка удаления чужой сессии
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiError'
+              examples:
+                invalid_token:
+                  summary: Недействительный токен
+                  value:
+                    status: 40102
+                    message: Недействительный токен
+                forbidden_session:
+                  summary: Чужая сессия
+                  value:
+                    status: 403
+                    code: AI_006
+                    message: Доступ запрещён
+        '404':
+          description: Сессия не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiError'
+              example:
+                status: 404
+                code: AI_004
+                message: Сессия не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+
+components:
+  schemas:
+    Session:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID сессии
+          example: 5
+        created_at:
+          type: string
+          format: date-time
+          description: Дата создания сессии
+          example: '2024-03-15T10:30:00.000Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Дата последнего сообщения
+          example: '2024-03-15T11:45:00.000Z'
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID сообщения
+          example: 42
+        role:
+          type: string
+          enum: [user, assistant]
+          description: Отправитель сообщения
+          example: user
+        content:
+          type: string
+          description: Текст сообщения
+          example: Я новичок, хочу научиться программировать — с чего начать?
+        created_at:
+          type: string
+          format: date-time
+          description: Дата и время сообщения
+          example: '2024-03-15T10:30:00.000Z'
+
+    AiError:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: HTTP-статус ошибки
+          example: 400
+        code:
+          type: string
+          description: >
+            Код ошибки AI-модуля:
+            AI_001 — пустое или слишком короткое сообщение,
+            AI_002 — сообщение превышает 2000 символов,
+            AI_003 — превышен лимит запросов,
+            AI_004 — сессия не найдена,
+            AI_005 — сервис ИИ недоступен,
+            AI_006 — попытка доступа к чужой сессии
+          example: AI_001
+        message:
+          type: string
+          description: Описание ошибки
+          example: Сообщение не может быть пустым
+
+    AuthError:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 40102
+        message:
+          type: string
+          example: Недействительный токен
+
+    ServerError:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 500
+        message:
+          type: string
+          example: Внутренняя ошибка сервера
