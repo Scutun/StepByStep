@@ -1,0 +1,32 @@
+services:
+    redis:
+        image: redis:7-alpine
+        container_name: stepbystep_redis
+        ports:
+            - '${REDIS_PORT:-6379}:6379'
+        volumes:
+            - redis_data:/data
+        networks:
+            - stepbystep_network
+
+    mongo:
+        image: mongo:7
+        container_name: stepbystep_mongo
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin}
+            MONGO_INITDB_DATABASE: ${MONGO_DB_NAME:-stepbystep}
+        ports:
+            - '${MONGO_PORT:-27017}:27017'
+        volumes:
+            - mongo_data:/data/db
+        networks:
+            - stepbystep_network
+
+volumes:
+    redis_data:
+    mongo_data:
+
+networks:
+    stepbystep_network:
+        driver: bridge

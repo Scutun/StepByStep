@@ -16,9 +16,9 @@ console.log('Найдены файлы для объединения:', swaggerF
 const mergedData = {
     openapi: '3.0.0',
     info: {
-        title: 'CryptoSense API',
+        title: 'StepByStep API',
         version: '1.0.0',
-        description: 'Объединённая API-документация',
+        description: 'API образовательной платформы по программированию',
     },
     paths: {},
 }

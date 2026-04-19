@@ -1,3 +1,5 @@
 node_modules
 .env
 docs/main.swagger.yaml
+.claude
+logs/
