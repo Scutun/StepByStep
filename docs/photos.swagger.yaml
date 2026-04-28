@@ -34,7 +34,7 @@ paths:
                       example: 1
                     name:
                       type: string
-                      example: "cristalAvatar.jpg"
+                      example: "defaultAvatar.jpg"
         '403':
           description: Неавторизованный пользователь
           content:

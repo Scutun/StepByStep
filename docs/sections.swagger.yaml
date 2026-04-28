@@ -12,13 +12,8 @@ paths:
       description: Возвращает созданный раздел.
       tags:
         - Sections
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -202,13 +197,8 @@ paths:
       tags:
         - Sections
       summary: Изменить раздел
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -320,25 +310,16 @@ paths:
       tags:
         - Sections
       summary: Удалить раздел
+      security:
+        - BearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
+        - name: id
+          in: path
           required: true
           schema:
-            type: string
-            example: Bearer your_token_here
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - reviewId
-              properties:
-                reviewId:
-                  type: integer
-                  example: 10
+            type: integer
+            example: 1
+          description: ID раздела
       responses:
         '200':
           description: Раздел успешно удален

@@ -12,13 +12,8 @@ paths:
       description: "Создает новый курс с указанными параметрами. Требуется авторизация."
       tags:
         - Courses
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-          description: Токен авторизации в формате Bearer.
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -119,16 +114,11 @@ paths:
   /v1/courses/sub:
       post:
         summary: "Подписаться на курс"
-        description: "Подпсывает пользователя на курс с переданным id. Требуется авторизация."
+        description: "Подписывает пользователя на курс с переданным id. Требуется авторизация."
         tags:
           - Courses
-        parameters:
-          - name: Authorization
-            in: header
-            required: true
-            schema:
-              type: string
-            description: Токен авторизации в формате Bearer.
+        security:
+          - BearerAuth: []
         requestBody:
           required: true
           content:
@@ -246,12 +236,8 @@ paths:
             type: string
             enum: [active, completed]
           description: Статус курсов, которые нужно получить (active или completed).
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-          description: Токен авторизации в формате Bearer.
+      security:
+        - BearerAuth: []
 
       responses:
         '200':
@@ -577,13 +563,8 @@ paths:
       description: "Отредактировать курс с указанными параметрами. Требуется авторизация."
       tags:
         - Courses
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-          description: Токен авторизации в формате Bearer.
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -591,6 +572,7 @@ paths:
             schema:
               type: object
               required:
+                - courseId
                 - title
                 - courseDuration
                 - difficultyId
@@ -598,6 +580,9 @@ paths:
                 - coursePhoto
                 - description
               properties:
+                courseId:
+                  type: integer
+                  description: "Идентификатор редактируемого курса"
                 coursePhoto:
                   type: string
                   description: "Ссылка на изображение курса в формате JPG"
@@ -688,23 +673,20 @@ paths:
                     
   /v1/courses/unsub/{id}:
       delete:
-        summary: "Отписаться от кура"
-        description: "ОТписывает пользователя от курса с переданным id. Требуется авторизация."
+        summary: "Отписаться от курса"
+        description: "Отписывает пользователя от курса с переданным id. Требуется авторизация."
         tags:
           - Courses
+        security:
+          - BearerAuth: []
         parameters:
-          - name: Authorization
-            in: header
-            required: true
-            schema:
-              type: string
-            description: Токен авторизации в формате Bearer.
-          - name: CourseId
-            in: header
+          - name: id
+            in: path
             required: true
             schema:
               type: integer
-            description: id курса.
+              example: 1
+            description: ID курса
 
         responses:
           '200':
@@ -763,13 +745,9 @@ paths:
         - Courses
       summary: Удалить курс
       description: Удаляет курс
+      security:
+        - BearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-          description: Токен авторизации в формате Bearer.
         - name: id
           in: path
           required: true

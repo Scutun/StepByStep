@@ -6,19 +6,13 @@ info:
   description: API для работы с тестами в разделе курса
 
 paths:
-  /api/v1/tests/new:
+  /v1/tests/new:
     post:
       summary: Создание теста
       tags:
         - Tests
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
-          description: Токен авторизации
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -58,7 +52,7 @@ paths:
                     type: integer
                   info:
                     type: object
-        "400":  
+        '400':
           description: Не все поля заполнены
           content:
             application/json:
@@ -71,8 +65,8 @@ paths:
                   message:
                     type: string
                     example: "Не все поля заполнены"
-        "403":  
-          description: Нет достпупа к данным
+        '403':
+          description: Нет доступа к данным
           content:
             application/json:
               schema:
@@ -110,19 +104,14 @@ paths:
                   message:
                     type: string
 
-  /api/v1/tests/list/{id}:
+  /v1/tests/list/{id}:
     get:
       summary: Получение списка тестов в разделе по ID раздела
       tags:
         - Tests
+      security:
+        - BearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
-          description: Токен авторизации
         - name: id
           in: path
           required: true
@@ -148,7 +137,7 @@ paths:
                       type: integer
                     info:
                       type: object
-        "400":  
+        '400':
           description: Не все поля заполнены
           content:
             application/json:
@@ -187,19 +176,14 @@ paths:
                   message:
                     type: string
 
-  /api/v1/tests/info/{id}:
+  /v1/tests/info/{id}:
     get:
       summary: Получение информации о тесте по ID теста
       tags:
         - Tests
+      security:
+        - BearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
-          description: Токен авторизации
         - name: id
           in: path
           required: true
@@ -223,7 +207,7 @@ paths:
                     type: integer
                   info:
                     type: object
-        "400":  
+        '400':
           description: Не все поля заполнены
           content:
             application/json:
@@ -261,20 +245,14 @@ paths:
                     example: 500
                   message:
                     type: string
-                    
-  /api/v1/tests/redact:
+
+  /v1/tests/redact:
     put:
       summary: Обновление содержания теста
       tags:
         - Tests
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
-          description: Токен авторизации
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -321,7 +299,7 @@ paths:
                     type: integer
                   info:
                     type: object
-        "400":  
+        '400':
           description: Не все поля заполнены
           content:
             application/json:
@@ -334,8 +312,8 @@ paths:
                   message:
                     type: string
                     example: "Не все поля заполнены"
-        "403":  
-          description: Нет достпупа к данным
+        '403':
+          description: Нет доступа к данным
           content:
             application/json:
               schema:
@@ -360,38 +338,36 @@ paths:
                   message:
                     type: string
 
-  /api/v1/tests/{id}:
+  /v1/tests:
     delete:
-      summary: Удаление теста по ID теста
+      summary: Удаление теста
+      description: Удаляет тест. Все идентификаторы передаются как query-параметры.
       tags:
         - Tests
+      security:
+        - BearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
-          description: Токен авторизации
-        - name: id
-          in: path
+        - name: testId
+          in: query
           required: true
           schema:
             type: integer
             example: 1
           description: ID теста
         - name: sectionId
-          in: path
+          in: query
           required: true
           schema:
             type: integer
             example: 1
+          description: ID раздела
         - name: courseId
-          in: path
+          in: query
           required: true
           schema:
             type: integer
             example: 1
+          description: ID курса
       responses:
         '200':
           description: Успешное удаление теста
@@ -403,7 +379,7 @@ paths:
                   message:
                     type: string
                     example: "Тест успешно удален"
-        "400":  
+        '400':
           description: Не все поля заполнены
           content:
             application/json:
@@ -416,8 +392,8 @@ paths:
                   message:
                     type: string
                     example: "Не все поля заполнены"
-        "403":  
-          description: Нет достпупа к данным
+        '403':
+          description: Нет доступа к данным
           content:
             application/json:
               schema:
@@ -434,10 +410,17 @@ paths:
           content:
             application/json:
               schema:
-                type: object 
+                type: object
                 properties:
                   status:
                     type: integer
                     example: 500
                   message:
                     type: string
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

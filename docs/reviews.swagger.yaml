@@ -11,13 +11,8 @@ paths:
       tags:
         - Reviews
       summary: Создать отзыв
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -188,13 +183,8 @@ paths:
       tags:
         - Reviews
       summary: Изменить отзыв
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -286,19 +276,16 @@ paths:
       tags:
         - Reviews
       summary: Удалить отзыв
+      security:
+        - BearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: Bearer your_token_here
         - name: id
-          in: query
+          in: path
           required: true
           schema:
             type: integer
             example: 10
+          description: ID отзыва
 
       responses:
         '200':
