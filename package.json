@@ -7,6 +7,7 @@
         "dev": "docker compose up -d && node config/doc.js && nodemon app.js",
         "start": "node app.js",
         "database": "node config/creationDB.js",
+        "seed": "docker compose up -d && node config/seed.js && docker compose stop",
         "merge-openapi": "node config/doc.js",
         "docker:up": "docker compose up -d",
         "docker:down": "docker compose down"

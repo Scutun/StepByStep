@@ -17,8 +17,12 @@ const redisClient = createClient({
     socket: {
         host: process.env.REDIS_HOST || '127.0.0.1',
         port: process.env.REDIS_PORT || 6379,
+        keepAlive: 5000,
+        reconnectStrategy: (retries) => Math.min(retries * 100, 3000),
     },
 })
+
+redisClient.on('error', () => {})
 
 redisClient.connect().catch(console.error)
 

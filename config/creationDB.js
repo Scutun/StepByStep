@@ -13,6 +13,8 @@ const defaultConfig = {
 const sqlFilePath = path.join(__dirname, 'database.sql')
 const sqlScript = fs.readFileSync(sqlFilePath, 'utf-8')
 
+const dbName = process.env.DB_NAME || 'stepbystep'
+
 const createDatabase = async () => {
     const defaultPool = new Pool({
         ...defaultConfig,
@@ -20,11 +22,11 @@ const createDatabase = async () => {
     })
 
     try {
-        await defaultPool.query('CREATE DATABASE crypto_sense')
-        console.log('База данных crypto_sense успешно создана!')
+        await defaultPool.query(`CREATE DATABASE ${dbName}`)
+        console.log(`База данных ${dbName} успешно создана!`)
     } catch (error) {
         if (error.code === '42P04') {
-            console.log('База данных crypto_sense уже существует.')
+            console.log(`База данных ${dbName} уже существует.`)
         } else {
             console.error('Ошибка при создании базы данных:', error.message)
         }
@@ -36,7 +38,7 @@ const createDatabase = async () => {
 const createTables = async () => {
     const airplanePool = new Pool({
         ...defaultConfig,
-        database: 'crypto_sense',
+        database: dbName,
     })
 
     try {

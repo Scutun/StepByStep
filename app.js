@@ -30,7 +30,17 @@ app.use(requestLogger)
 
 const swaggerMain = yaml.load(fs.readFileSync('./docs/main.swagger.yaml', 'utf8'))
 
-app.use('/api/v1/swagger/docs', swaggerUi.serve, swaggerUi.setup(swaggerMain))
+app.use(
+    '/api/v1/swagger/docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerMain, {
+        swaggerOptions: {
+            persistAuthorization: true,
+            withCredentials: true,
+            tryItOutEnabled: true,
+        },
+    }),
+)
 
 app.use('/api', userRoutes)
 app.use('/api', courseRoutes)

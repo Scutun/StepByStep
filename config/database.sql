@@ -4,78 +4,17 @@ CREATE TABLE IF NOT EXISTS difficulties (
     name VARCHAR(255) UNIQUE NOT NULL
 );
 
--- Запись сдложности курсов
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM difficulties WHERE name = 'Легкая') THEN
-    INSERT INTO difficulties (name) VALUES ('Легкая');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM difficulties WHERE name = 'Средняя') THEN
-    INSERT INTO difficulties (name) VALUES ('Средняя');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM difficulties WHERE name = 'Сложная') THEN
-    INSERT INTO difficulties (name) VALUES ('Сложная');
-  END IF;
-
-END $$;
-
 -- таблица словарь с тегами для курсов
 CREATE TABLE IF NOT EXISTS tags (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL
 );
 
--- Запись названий тегов курсов
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM tags WHERE name = 'Bitcoin') THEN
-    INSERT INTO tags (name) VALUES ('Bitcoin');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM tags WHERE name = 'Ethereum') THEN
-    INSERT INTO tags (name) VALUES ('Ethereum');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM tags WHERE name = 'Litecoin') THEN
-    INSERT INTO tags (name) VALUES ('Litecoin');
-  END IF;
-END $$;
-
 -- таблица словарь фотографий
 CREATE TABLE IF NOT EXISTS photos (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL
 );
-
--- Запись названий аватаров
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM photos WHERE name = 'cristalAvatar.jpg') THEN
-    INSERT INTO photos (name) VALUES ('cristalAvatar.jpg');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM photos WHERE name = 'bitcoinPlusAvatar.jpg') THEN
-    INSERT INTO photos (name) VALUES ('bitcoinPlusAvatar.jpg');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM photos WHERE name = 'bitpandaAvatar.jpg') THEN
-    INSERT INTO photos (name) VALUES ('bitpandaAvatar.jpg');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM photos WHERE name = 'cDollarAvatar.jpg') THEN
-    INSERT INTO photos (name) VALUES ('cDollarAvatar.jpg');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM photos WHERE name = 'rightsAvatar.jpg') THEN
-    INSERT INTO photos (name) VALUES ('rightsAvatar.jpg');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM photos WHERE name = 'synthetixAvatar.jpg') THEN
-    INSERT INTO photos (name) VALUES ('synthetixAvatar.jpg');
-  END IF;
-END $$;
 
 -- таблица пользователей
 CREATE TABLE IF NOT EXISTS users (
@@ -187,22 +126,6 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 
-
--- Супер пользователь для теста
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin1@mail.ru') THEN
-    INSERT INTO users (email, password, nickname, name, surname, activated, registration_date) VALUES ('admin1@mail.ru', '$2b$10$qClaDFhQzCCFB4c6TkRxmecmGIXV75a2YO1Rf3cfRslY88zZnNieS', 'admin1', 'admin1', 'admin1', true, NOW());
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin2@mail.ru') THEN
-    INSERT INTO users (email, password, nickname, name, surname, activated, registration_date) VALUES ('admin2@mail.ru', '$2b$10$qClaDFhQzCCFB4c6TkRxmecmGIXV75a2YO1Rf3cfRslY88zZnNieS', 'admin2', 'admin2', 'admin2', true, NOW());
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin3@mail.ru') THEN
-    INSERT INTO users (email, password, nickname, name, surname, activated, registration_date) VALUES ('admin3@mail.ru', '$2b$10$qClaDFhQzCCFB4c6TkRxmecmGIXV75a2YO1Rf3cfRslY88zZnNieS', 'admin3', 'admin3', 'admin3', true, NOW());
-  END IF;
-END $$;
 
 -- Триггер для автоматического добавления и удаления счетчика уроков
 CREATE OR REPLACE FUNCTION update_lessons_count()
@@ -520,22 +443,3 @@ CREATE TABLE IF NOT EXISTS faq (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Начальное наполнение базы FAQ
-INSERT INTO faq (question, answer, category) VALUES
-('Как записаться на курс?', 'Найдите интересующий курс в каталоге, откройте его страницу и нажмите кнопку «Подписаться». Курс появится в разделе «Мои курсы».', 'Курсы'),
-('Как отписаться от курса?', 'Перейдите в раздел «Мои курсы», откройте нужный курс и нажмите кнопку «Отписаться».', 'Курсы'),
-('Как отслеживать прогресс обучения?', 'В разделе «Мои курсы» отображается прогресс прохождения каждого курса в процентах. Прогресс обновляется автоматически после завершения каждого урока.', 'Обучение'),
-('Как завершить урок?', 'После изучения материала нажмите кнопку «Завершить урок» внизу страницы урока.', 'Обучение'),
-('Как посмотреть список уроков курса?', 'Откройте страницу курса — там будет список всех разделов и уроков. Доступность урока зависит от вашей подписки на курс.', 'Обучение'),
-('Как изменить личные данные?', 'Перейдите в настройки профиля и обновите нужные поля: имя, фамилию, никнейм или фото.', 'Профиль'),
-('Как изменить пароль?', 'В настройках профиля перейдите в раздел «Безопасность» и введите новый пароль.', 'Профиль'),
-('Как восстановить пароль?', 'На странице входа нажмите «Забыли пароль?» и следуйте инструкциям — ссылка для сброса придёт на ваш email.', 'Профиль'),
-('Что такое репутация?', 'Репутация — это система очков, отражающая активность пользователя на платформе. Чем больше вы учитесь и взаимодействуете с платформой, тем выше репутация.', 'Профиль'),
-('Как удалить аккаунт?', 'Удаление аккаунта доступно в настройках профиля. Учтите, что это действие необратимо — все данные будут удалены.', 'Профиль'),
-('Какие уровни сложности курсов существуют?', 'На платформе доступны три уровня сложности: Легкая (для начинающих), Средняя (для тех, кто уже знаком с темой) и Сложная (для опытных пользователей).', 'Курсы'),
-('Как оставить отзыв о курсе?', 'На странице курса прокрутите вниз до раздела «Отзывы» и нажмите «Написать отзыв». Выберите оценку от 1 до 5 и напишите комментарий.', 'Курсы'),
-('Можно ли проходить несколько курсов одновременно?', 'Да, вы можете подписаться на любое количество курсов и проходить их в удобном для вас темпе.', 'Курсы'),
-('Как найти нужный курс?', 'В каталоге курсов используйте строку поиска или фильтры по тегам и уровню сложности, чтобы найти подходящий курс.', 'Курсы'),
-('Что делать, если возникла техническая проблема?', 'Если вы столкнулись с технической проблемой, попробуйте перезагрузить страницу. Если проблема сохраняется — обратитесь в службу поддержки через форму обратной связи.', 'Поддержка'),
-('Как связаться с поддержкой?', 'Для связи с командой поддержки используйте форму обратной связи на сайте или напишите на официальный email платформы.', 'Поддержка')
-ON CONFLICT DO NOTHING;
