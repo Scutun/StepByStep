@@ -48,7 +48,16 @@ async function compareRefreshToken(refreshToken, id) {
             throw { status: 401, message: 'Неправильный токен обновления ' }
         }
     } catch (error) {
+        if (error.status) throw error
         throw { status: 500, message: `Ошибка при проверке токена обновления: ${error.message}` }
+    }
+}
+
+async function getRefreshToken(id) {
+    try {
+        return await redis.get(`user_id:${id}`)
+    } catch (error) {
+        throw { status: 500, message: `Ошибка при получении токена обновления: ${error.message}` }
     }
 }
 
@@ -67,4 +76,5 @@ module.exports = {
     compareRefreshToken,
     getIdFromToken,
     deleteRefreshToken,
+    getRefreshToken,
 }

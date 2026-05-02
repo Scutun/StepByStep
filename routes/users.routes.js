@@ -9,9 +9,10 @@ router.post('/v1/users/registration', userController.createUser)
 router.post('/v1/users/verify/email', checkToken, userController.verifyEmail)
 router.post('/v1/users/authorization', userController.loginUser)
 router.post('/v1/users/reset/password', userController.resetUserPassword)
-router.post('/v1/users/logout', checkToken, userController.logoutUser)
+router.post('/v1/users/logout', userController.logoutUser)
 
 router.get('/v1/users/new/tokens', tokenController.updateRefreshToken)
+router.get('/v1/users/refresh-token', checkToken, tokenController.getRefreshToken)
 router.get('/v1/users/me', checkToken, userController.getUser)
 
 router.patch('/v1/users/new/password', checkToken, userController.newUserPassword)

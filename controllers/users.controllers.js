@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken')
 const userService = require('../services/users.services')
 const tokenUtils = require('../utils/tokens.utils')
 const emailUtils = require('../utils/emails.utils')
@@ -80,10 +81,16 @@ class UsersController {
 
     async logoutUser(req, res, next) {
         try {
-            const id = tokenUtils.getIdFromToken(req)
+            const refreshToken = req.cookies.refreshToken
+            if (!refreshToken) {
+                return res.status(422).json({ message: 'Токен не предоставлен' })
+            }
 
-            await tokenUtils.deleteRefreshToken(id)
+            const user = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
 
+            await tokenUtils.deleteRefreshToken(user.id)
+
+            res.clearCookie('refreshToken', { httpOnly: true, secure: false })
             res.status(200).json('User logged out')
         } catch (error) {
             next(error)

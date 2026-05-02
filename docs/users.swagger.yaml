@@ -391,18 +391,16 @@ paths:
 
   /v1/users/logout:
     post:
-      parameters:
-        - name: "Authorization"
-          in: "Cookies"
-          required: true
-          schema:
-            type: string
-            example: "refreshToken=your_token_here; HttpOnly;"
       tags:
         - Users
       summary: Выход пользователя
-      security:
-        - BearerAuth: []
+      parameters:
+        - name: Cookie
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "refreshToken=your_token_here"
       responses:
         "200":
           description: Пользователь вышел
@@ -437,6 +435,72 @@ paths:
                   message:
                     type: string
                     example: "Ошибка при удалении токена обновления: error_message"
+
+  /v1/users/refresh-token:
+    get:
+      summary: Получить refresh token текущего пользователя
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer your_token_here
+      responses:
+        "200":
+          description: Refresh token найден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refreshToken:
+                    type: string
+                    description: Текущий refresh token пользователя
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "404":
+          description: Токен не найден или истёк
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  message:
+                    type: string
+                    example: "Токен не найден или истек"
+        "403":
+          description: Недействительный токен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  message:
+                    type: string
+                    example: "Недействительный токен"
+        "500":
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: "Ошибка при получении токена обновления: error_message"
 
   /v1/users/new/tokens:
     get:
