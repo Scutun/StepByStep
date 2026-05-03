@@ -7,7 +7,9 @@ class AiController {
             const userId = tokenUtils.getIdFromToken(req)
             const { message, sessionId } = req.body
 
-            console.log(`[AI] Запрос от пользователя ${userId} | sessionId: ${sessionId || 'новая'} | длина: ${message?.length || 0}`)
+            console.log(
+                `[AI] Запрос от пользователя ${userId} | sessionId: ${sessionId || 'новая'} | длина: ${message?.length || 0}`,
+            )
 
             const result = await aiService.sendMessage(userId, message, sessionId)
 
@@ -15,7 +17,9 @@ class AiController {
 
             res.json(result)
         } catch (error) {
-            console.error(`[AI] Ошибка обработки запроса: ${error.code || error.status} — ${error.message}`)
+            console.error(
+                `[AI] Ошибка обработки запроса: ${error.code || error.status} — ${error.message}`,
+            )
             next(error)
         }
     }

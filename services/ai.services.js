@@ -48,6 +48,7 @@ class AiService {
             }
         } else {
             session = await aiModel.createSession(userId)
+            console.log(`[AI] Новая сессия создана | id: ${session.id}`)
         }
 
         // Параллельная загрузка контекста и истории

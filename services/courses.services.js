@@ -108,7 +108,7 @@ class CoursesService {
         try {
             const { query, difficulty, tags, sort = 'id', order = 'asc', limit, offset } = req
 
-            if (query.length > 255) {
+            if (query && query.length > 255) {
                 throw { status: 414, message: 'Слишком длинный запрос' }
             }
 
