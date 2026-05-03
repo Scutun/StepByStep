@@ -3,3 +3,6 @@ node_modules
 docs/main.swagger.yaml
 .claude
 logs/
+docs/app-architecture.md
+docs/db-architecture.md
+docs/mongodb-schemas.json
