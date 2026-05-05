@@ -1,9 +1,10 @@
+require('dotenv').config()
 const Groq = require('groq-sdk')
 const aiModel = require('../models/ai.models')
 
-const MAX_MESSAGE_LENGTH = 2000
-const MAX_MESSAGES_PER_MINUTE = 10
-const HISTORY_LIMIT = 20
+const MAX_MESSAGE_LENGTH = process.env.MAX_MESSAGE_LENGTH
+const MAX_MESSAGES_PER_MINUTE = process.env.MAX_MESSAGES_PER_MINUTE
+const HISTORY_LIMIT = process.env.HISTORY_LIMIT
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 

@@ -1,3 +1,4 @@
+require('dotenv').config()
 const bcrypt = require('bcrypt')
 const modelUser = require('../models/users.models')
 const tokenUtils = require('../utils/tokens.utils')
@@ -18,7 +19,7 @@ class UsersService {
                 throw { status: 422, message: 'Все поля обязательны для заполнения' }
             }
 
-            const hashPassword = await bcrypt.hash(password, 10)
+            const hashPassword = await bcrypt.hash(password, Number(process.env.HASH_SALT))
             const date = new Date().toISOString().split('T')[0]
             const info = { email, hashPassword, login, name, surname, date }
 
