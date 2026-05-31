@@ -38,11 +38,19 @@ class ReviewsModel {
 
     async deleteReview(userId, reviewId) {
         try {
-            const result = await db.query(
-                `DELETE FROM comments 
-                 WHERE id = $1 AND user_nickname = (SELECT nickname FROM users WHERE id = $2)`,
-                [reviewId, userId],
-            )
+            const adminCheck = await db.query('SELECT admin FROM users WHERE id = $1', [userId])
+            const isAdmin = adminCheck.rowCount > 0 && adminCheck.rows[0].admin
+
+            let result
+            if (isAdmin) {
+                result = await db.query('DELETE FROM comments WHERE id = $1', [reviewId])
+            } else {
+                result = await db.query(
+                    `DELETE FROM comments
+                     WHERE id = $1 AND user_nickname = (SELECT nickname FROM users WHERE id = $2)`,
+                    [reviewId, userId],
+                )
+            }
 
             if (result.rowCount == 0) {
                 throw { status: 404, message: 'Комментарий не найден' }

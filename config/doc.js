@@ -27,6 +27,7 @@ const mergedData = {
     ],
     tags: [
         { name: 'Users', description: 'Регистрация, авторизация и профиль пользователя' },
+        { name: 'AI Assistant', description: 'Чат с ИИ-ассистентом' },
         { name: 'Courses', description: 'Курсы, подписки на курсы' },
         { name: 'Sections', description: 'Разделы курса' },
         { name: 'Lessons', description: 'Уроки внутри раздела' },
@@ -35,7 +36,11 @@ const mergedData = {
         { name: 'Photos', description: 'Аватары и обложки курсов' },
         { name: 'Tags', description: 'Теги курсов' },
         { name: 'Difficulties', description: 'Уровни сложности курсов' },
-        { name: 'AI Assistant', description: 'Чат с ИИ-ассистентом' },
+        {
+            name: 'Admin',
+            description:
+                'Административные операции (только для пользователей с правами администратора)',
+        },
     ],
     paths: {},
     components: {

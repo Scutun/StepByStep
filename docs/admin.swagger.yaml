@@ -1,0 +1,267 @@
+# prettier-ignore
+openapi: 3.0.0
+info:
+  title: Admin API
+  version: 1.0.0
+  description: Административные операции (только для пользователей с правами администратора)
+
+paths:
+  /v1/admin/users/{id}:
+    delete:
+      summary: Удалить любого пользователя
+      description: Удаляет пользователя по ID. Доступно только администраторам.
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer your_token_here
+        - name: id
+          in: path
+          required: true
+          description: ID пользователя, которого необходимо удалить
+          schema:
+            type: integer
+            example: 5
+      responses:
+        "200":
+          description: Пользователь успешно удален
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Пользователь успешно удален
+        "403":
+          description: Недействительный токен или нет прав администратора
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 40301
+                  message:
+                    type: string
+                    example: Доступ запрещен
+        "404":
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  message:
+                    type: string
+                    example: Пользователь не найден
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: Внутренняя ошибка сервера
+
+  /v1/admin/logs:
+    get:
+      summary: Получить список пользователей с логами
+      description: Возвращает список директорий логов всех пользователей. Доступно только администраторам.
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer your_token_here
+      responses:
+        "200":
+          description: Список директорий логов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: user_3
+        "403":
+          description: Недействительный токен или нет прав администратора
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 40301
+                  message:
+                    type: string
+                    example: Доступ запрещен
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: Внутренняя ошибка сервера
+
+  /v1/admin/logs/{userId}:
+    get:
+      summary: Получить список лог-файлов пользователя
+      description: Возвращает список лог-файлов для указанного пользователя. Доступно только администраторам.
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer your_token_here
+        - name: userId
+          in: path
+          required: true
+          description: ID пользователя
+          schema:
+            type: integer
+            example: 3
+      responses:
+        "200":
+          description: Список лог-файлов пользователя
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: 2026-05-31_14-30-00.txt
+        "403":
+          description: Недействительный токен или нет прав администратора
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 40301
+                  message:
+                    type: string
+                    example: Доступ запрещен
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: Внутренняя ошибка сервера
+
+  /v1/admin/logs/{userId}/{filename}:
+    get:
+      summary: Получить содержимое лог-файла
+      description: Возвращает текстовое содержимое конкретного лог-файла пользователя. Доступно только администраторам.
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Bearer your_token_here
+        - name: userId
+          in: path
+          required: true
+          description: ID пользователя
+          schema:
+            type: integer
+            example: 3
+        - name: filename
+          in: path
+          required: true
+          description: Имя лог-файла
+          schema:
+            type: string
+            example: 2026-05-31_14-30-00.txt
+      responses:
+        "200":
+          description: Содержимое лог-файла в текстовом формате
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  [2026-05-31 14:30:00] GET /v1/users/me | user: 3 | status: 200 | OK | 12ms
+                  [2026-05-31 14:31:05] DELETE /v1/courses/7 | user: 3 | status: 403 | ERROR | code: 40301 | Доступ запрещен | 8ms
+        "403":
+          description: Недействительный токен или нет прав администратора
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 40301
+                  message:
+                    type: string
+                    example: Доступ запрещен
+        "404":
+          description: Лог-файл не найден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  message:
+                    type: string
+                    example: Лог файл не найден
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: Внутренняя ошибка сервера

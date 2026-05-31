@@ -68,16 +68,23 @@ class CoursesModel {
 
     async deleteCourse(courseId, userId) {
         try {
-            const course = await db.query(
-                `SELECT * FROM courses where creator_id = $1 and id = $2`,
-                [userId, courseId],
-            )
-            if (course.rowCount < 1) {
-                throw { status: 403, message: 'У вас недостаточно прав для удаления этого курса' }
+            const adminCheck = await db.query('SELECT admin FROM users WHERE id = $1', [userId])
+            const isAdmin = adminCheck.rowCount > 0 && adminCheck.rows[0].admin
+
+            if (!isAdmin) {
+                const course = await db.query(
+                    `SELECT * FROM courses where creator_id = $1 and id = $2`,
+                    [userId, courseId],
+                )
+                if (course.rowCount < 1) {
+                    throw {
+                        status: 403,
+                        message: 'У вас недостаточно прав для удаления этого курса',
+                    }
+                }
             }
 
             await redis.del(`course:${courseId}`)
-
             await db.query('DELETE FROM courses WHERE id = $1', [courseId])
         } catch (error) {
             throw error
