@@ -28,6 +28,7 @@
         "pg": "^8.20.0",
         "pino-http": "^10.5.0",
         "redis": "^4.7.1",
+        "resend": "^6.12.4",
         "socket.io": "^4.8.1",
         "swagger-ui-express": "^5.0.1"
     },
